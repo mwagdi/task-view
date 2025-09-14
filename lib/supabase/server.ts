@@ -1,12 +1,13 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Especially important if using Fluid compute: Don't put this client in a
  * global variable. Always create a new client within each function when using
  * it.
  */
-export async function createClient() {
+export const createClient = async (): Promise<SupabaseClient<any, 'public', 'public', any, any>> => {
   const cookieStore = await cookies();
 
   return createServerClient(
@@ -14,14 +15,12 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
     {
       cookies: {
-        getAll() {
+        getAll: () => {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll: (cookiesToSet) => {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
           } catch {
             // The `setAll` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
@@ -31,4 +30,4 @@ export async function createClient() {
       },
     },
   );
-}
+};
