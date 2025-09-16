@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { FC } from 'react';
+import { gql } from 'graphql-tag';
 
 import { DeployButton } from '@/components/deploy-button';
 import { EnvVarWarning } from '@/components/env-var-warning';
@@ -10,16 +11,23 @@ import { ConnectSupabaseSteps } from '@/components/tutorial/connect-supabase-ste
 import { SignUpUserSteps } from '@/components/tutorial/sign-up-user-steps';
 import { hasEnvVars } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/server';
+import { getClient } from '@/lib/graphql/apollo-client';
+
+const HelloQuery = gql`
+  query {
+    hello
+  }
+`;
 
 const Home: FC = async () => {
+  const client = await getClient();
+  const { data: gqlData } = await client.query({ query: HelloQuery });
   const supabase = await createClient();
 
   // You can also use getUser() which will be slower.
   const { data } = await supabase.auth.getClaims();
 
   const user = data?.claims;
-
-  console.log({ user });
 
   return (
     <main className="min-h-screen flex flex-col items-center">
