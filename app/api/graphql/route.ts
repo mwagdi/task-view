@@ -1,17 +1,13 @@
-// app/api/graphql/route.ts
+import { readFileSync } from 'node:fs';
+import { join } from 'path';
+
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { NextRequest } from 'next/server';
-import { gql } from 'graphql-tag';
 import { ApolloServer } from '@apollo/server';
 
 export const runtime = 'nodejs'; // Apollo Server requires the Node.js runtime (not Edge)
 
-const typeDefs = gql`
-  type Query {
-    hello: String!
-  }
-`;
-
+const typeDefs = readFileSync(join(process.cwd(), 'lib/graphql/schema.graphql'), 'utf8');
 const resolvers = {
   Query: {
     hello: (): string => '👋 from Apollo Server on Next.js',
